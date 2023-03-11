@@ -1,0 +1,35 @@
+﻿@using ChessPhone.Core.Repositories
+@using ChessPhone.Core.Models
+@using ChessPhone.Core.Services
+@using ChessPhone.Cache
+@inject IChessPieceRepository ChessPieceRepository
+<MudText Class="mb-3"
+         Align="Align.Center"
+         Typo="Typo.h4">
+    Select a piece
+</MudText>
+<MudGrid Class="text-center" Justify="Justify.Center">
+    @foreach (var piece in _pieces)
+    {
+        <MudItem xs="2">
+            <MudButton Size="Size.Large" 
+                       Variant="Variant.Filled" 
+                       Color="Color.Success" 
+                       OnClick="@(()=> OnChangePiece.InvokeAsync(piece))">
+                @piece.Name
+            </MudButton>
+        </MudItem>
+    }
+</MudGrid>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public EventCallback<ChessPiece> OnChangePiece { get; set; }
+    private IEnumerable<ChessPiece> _pieces = Enumerable.Empty<ChessPiece>();
+
+    protected override void OnInitialized()
+    {
+        _pieces = ChessPieceRepository.GetPieces();
+    }
+}

@@ -1,0 +1,101 @@
+﻿@using ChessPhone.Core.Models
+@using ChessPhone.Core
+@using ChessPhone.Core.Repositories
+@using ChessPhone.Core.Services
+@using ChessPhone.Cache
+@inject ISnackbar Snackbar
+<MudPaper Class="m-auto" Elevation="5" Width="300px">
+    <MudText Class="mb-3"
+             Align="Align.Center"
+             Typo="Typo.h4">
+        @ChessPiece.Name
+    </MudText>
+    <MudGrid Class="text-center">
+        @foreach (var square in _boxes)
+        {
+            <MudItem xs="4">
+                <MudAvatar Class="m-auto" Style="height: 60px; width: 60px" Color="square.Value.Color">
+                    @square.Key
+                </MudAvatar>
+            </MudItem>
+        }
+        <MudItem xs="12">
+            <MudButton Variant="Variant.Filled"
+                       Disabled="_running"
+                       Color="Color.Success"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.PlayArrow"
+                       OnClick="@Run">
+                Run
+            </MudButton>
+
+        </MudItem>
+        <MudItem xs="12">
+            <MudText Class="mb-3"
+                     Align="Align.Center"
+                     Typo="Typo.body1">
+                @_combination
+            </MudText>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@code {
+    [EditorRequired]
+    [Parameter]
+    public required ChessPiece ChessPiece { get; set; }    
+    [EditorRequired]
+    [Parameter]
+    public required Core.Models.Board CurrentBoard { get; set; }
+    private Dictionary<string, DisplayBox> _boxes = new();
+    private Random _random = new();
+    private bool _running;
+    private string? _combination;
+
+    protected override void OnInitialized()
+    {
+        _boxes = CurrentBoard.Boxes
+            .ToDictionary(x => x.Name, x => new DisplayBox(x, GetColor(x.IsValid)));
+    }
+
+    private string Calculate()
+    {
+        var combinations = ChessPieceCache.KnownMovesByPiece[ChessPiece.Name];
+        var length = combinations.Length;
+        return length != 0 ? GetRandom(combinations, length) : string.Empty;
+    }
+
+    private async Task Run()
+    {
+        _running = true;
+        _combination = Calculate();
+
+        if (!string.IsNullOrEmpty(_combination))
+        {
+            string? previous = null;
+            foreach (var value in _combination)
+            {
+                if (previous != null)
+                {
+                    _boxes[previous].Color = Color.Primary;
+                }
+                previous = value.ToString();
+                _boxes[previous].Color = Color.Warning;
+                StateHasChanged();
+                await Task.Delay(1000);
+            }
+            _boxes[_combination.Last().ToString()].Color = Color.Primary;
+        }
+        else
+        {
+            Snackbar.Add("No available combinations for the given piece", Severity.Error);
+        }
+        _running = false;
+    }
+
+    private string GetRandom(string[] combinations, int length)
+        => combinations.Skip(_random.Next(0, length)).First();
+
+    private static Color GetColor(bool isValid)
+        => isValid ? Color.Primary : Color.Error;
+}
