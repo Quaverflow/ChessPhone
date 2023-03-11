@@ -6,12 +6,42 @@ namespace ChessPhone.Core.Services;
 
 public class ChessPieceService : IChessPieceService
 {
-    public long CalculateNumberOfCombinations(ChessPiece piece, Board board, int limit) 
+    public long CalculateNumberOfCombinations(ChessPiece piece, Board board, int limit)
         => GetCombinations(piece, board, limit).LongCount();
 
-    public IEnumerable<string> GetCombinations(ChessPiece piece, Board board, int limit)
+    public string GetRandomCombination(ChessPiece piece, Board board, int limit)
     {
+        var random = new Random();
+        var result = string.Empty;
+        if (piece.AllowedDirections != Direction.ForwardOnly)
+        {
+            var availableMoves = GetAvailableMovesByBox(piece, board);
 
+            var startingBoxes = GetAvailableStartingPoints(board).ToArray();
+            var startingBox = startingBoxes[random.Next(0, startingBoxes.Length)];
+            var moveTree = new MoveTree(availableMoves, startingBox, 0, limit);
+            result = startingBox.Name;
+            try
+            {
+                for (var i = 0; i < limit - 1; i++)
+                {
+                    var index = random.Next(0, moveTree.Available.Length);
+                    moveTree = moveTree.Available[index];
+                    result += moveTree.Box.Name;
+                }
+            }
+            catch 
+            {
+                return string.Empty;
+            }
+ 
+        }
+
+        return result;
+    }
+
+    private IEnumerable<string> GetCombinations(ChessPiece piece, Board board, int limit)
+    {
         var results = new List<string>();
         if (piece.AllowedDirections != Direction.ForwardOnly)
         {

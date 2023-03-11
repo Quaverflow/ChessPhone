@@ -16,4 +16,8 @@
     <ProjectReference Include="..\ChessPhone.Core\ChessPhone.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Cache\" />
+  </ItemGroup>
+
 </Project>

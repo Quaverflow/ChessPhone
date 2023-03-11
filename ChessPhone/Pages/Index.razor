@@ -1,32 +1,21 @@
 ﻿@page "/"
 @using ChessPhone.Core.Models
 @using Board = ChessPhone.Components.Board
-@using ChessPhone.Cache
 @using ChessPhone.Core.Repositories
-@using ChessPhone.Core.Services
 @inject IBoardRepository BoardRepository
-@inject IChessPieceService ChessPieceService
 
 <MudContainer >
     <MudPaper Class="m-4 p-3" Elevation="5">
-        <ChessPieces OnChangePiece="@(Calculate)" />
+        <ChessPieces OnChangePiece="@(SetPiece)" />
     </MudPaper>
     @if (_chessPiece != null && _board != null)
     {
         <Board ChessPiece="_chessPiece" CurrentBoard="_board" />
     }
 </MudContainer>
-<MudOverlay Visible="_calculating" DarkBackground="true">
-    <MudText Class="mb-3 bg-black p-3"
-             Align="Align.Center"
-             Typo="Typo.body1">
-        CALCULATING FOR THE FIRST TIME. THIS MIGHT TAKE A MOMENT.
-    </MudText>
-</MudOverlay>
 @code
 {
     private ChessPiece? _chessPiece;
-    private bool _calculating;
     private Core.Models.Board? _board;
 
     protected override void OnInitialized()
@@ -34,17 +23,8 @@
         _board = BoardRepository.GetBoard();
     }
 
-    private async Task Calculate(ChessPiece piece)
+    private void SetPiece(ChessPiece piece)
     {
         _chessPiece = piece;
-        if (_board != null && !ChessPieceCache.KnownMovesByPiece.ContainsKey(piece.Name))
-        {
-            _calculating = true;
-            StateHasChanged();
-            await Task.Delay(1000);
-            var results = ChessPieceService.GetCombinations(piece, _board, 7);
-            ChessPieceCache.KnownMovesByPiece.Add(piece.Name, results.ToArray());
-            _calculating = false;
-        }
     }
 }

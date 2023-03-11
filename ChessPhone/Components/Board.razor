@@ -2,8 +2,9 @@
 @using ChessPhone.Core
 @using ChessPhone.Core.Repositories
 @using ChessPhone.Core.Services
-@using ChessPhone.Cache
 @inject ISnackbar Snackbar
+@inject IChessPieceService ChessPieceService
+
 <MudPaper Class="m-auto" Elevation="5" Width="300px">
     <MudText Class="mb-3"
              Align="Align.Center"
@@ -43,12 +44,11 @@
 @code {
     [EditorRequired]
     [Parameter]
-    public required ChessPiece ChessPiece { get; set; }    
+    public required ChessPiece ChessPiece { get; set; }
     [EditorRequired]
     [Parameter]
     public required Core.Models.Board CurrentBoard { get; set; }
     private Dictionary<string, DisplayBox> _boxes = new();
-    private Random _random = new();
     private bool _running;
     private string? _combination;
 
@@ -60,9 +60,7 @@
 
     private string Calculate()
     {
-        var combinations = ChessPieceCache.KnownMovesByPiece[ChessPiece.Name];
-        var length = combinations.Length;
-        return length != 0 ? GetRandom(combinations, length) : string.Empty;
+        return ChessPieceService.GetRandomCombination(ChessPiece, CurrentBoard, 7);
     }
 
     private async Task Run()
@@ -92,9 +90,6 @@
         }
         _running = false;
     }
-
-    private string GetRandom(string[] combinations, int length)
-        => combinations.Skip(_random.Next(0, length)).First();
 
     private static Color GetColor(bool isValid)
         => isValid ? Color.Primary : Color.Error;

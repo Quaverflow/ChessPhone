@@ -24,7 +24,6 @@ public static class MoveRules
             return false;
         }
 
-
         return IsWithinRange(current, next, limit)
                && next.Coordinate.X == current.Coordinate.X
                || next.Coordinate.Y == current.Coordinate.Y;
