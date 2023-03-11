@@ -1,6 +1,7 @@
 ﻿using ChessPhone.Core.Enums;
+using ChessPhone.Core.Models;
 
-namespace ChessPhone.Core.Models;
+namespace ChessPhone.Core.Helpers;
 
 /// <summary>
 /// Contains the necessary math to calculate valid moves
