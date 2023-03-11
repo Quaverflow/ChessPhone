@@ -2,26 +2,26 @@
 @using ChessPhone.Core.Models
 @using ChessPhone.Core.Services
 @inject IChessPieceRepository ChessPieceRepository
-
-<MudText Class="mb-3"
-         Align="Align.Center"
-         Typo="Typo.h4">
-    Select a piece
-</MudText>
-<MudGrid Class="text-center" Justify="Justify.Center">
-    @foreach (var piece in _pieces)
-    {
-        <MudItem xs="2">
-            <MudButton Size="Size.Large" 
-                       Variant="Variant.Filled" 
-                       Color="Color.Success" 
+<MudPaper Class="m-4 p-3" Elevation="5">
+    <MudText Class="mb-3"
+             Align="Align.Center"
+             Typo="Typo.h4">
+        Select a piece
+    </MudText>
+    <MudGrid Class="text-center" Justify="Justify.Center">
+        @foreach (var piece in _pieces)
+        {
+            <MudItem xs="2">
+                <MudButton Size="Size.Large"
+                       Variant="Variant.Filled"
+                       Color="Color.Success"
                        OnClick="@(()=> OnChangePiece.InvokeAsync(piece))">
-                @piece.Name
-            </MudButton>
-        </MudItem>
-    }
-</MudGrid>
-
+                    @piece.Name
+                </MudButton>
+            </MudItem>
+        }
+    </MudGrid>
+</MudPaper>
 @code {
     [EditorRequired]
     [Parameter]

@@ -4,10 +4,8 @@
 @using ChessPhone.Core.Repositories
 @inject IBoardRepository BoardRepository
 
-<MudContainer >
-    <MudPaper Class="m-4 p-3" Elevation="5">
-        <ChessPieces OnChangePiece="@(SetPiece)" />
-    </MudPaper>
+<MudContainer>
+            <ChessPieces OnChangePiece="@(SetPiece)" />
     @if (_chessPiece != null && _board != null)
     {
         <Board ChessPiece="_chessPiece" CurrentBoard="_board" />
@@ -17,6 +15,7 @@
 {
     private ChessPiece? _chessPiece;
     private Core.Models.Board? _board;
+    private bool _expandChessSelection;
 
     protected override void OnInitialized()
     {
@@ -25,6 +24,8 @@
 
     private void SetPiece(ChessPiece piece)
     {
+        _expandChessSelection = false;
         _chessPiece = piece;
     }
+
 }

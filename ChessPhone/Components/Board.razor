@@ -5,6 +5,17 @@
 @inject ISnackbar Snackbar
 @inject IChessPieceService ChessPieceService
 
+@if (_combination != null)
+{
+    <MudPaper Class="overflow-auto m-auto mb-5" Elevation="5" MaxHeight="100px">
+        <MudText Class="text-break"
+                 Align="Align.Center"
+                 Typo="Typo.body1">
+            @_combination
+        </MudText>
+    </MudPaper>
+}
+
 <MudPaper Class="m-auto" Elevation="5" Width="300px">
     <MudText Class="mb-3"
              Align="Align.Center"
@@ -21,6 +32,16 @@
             </MudItem>
         }
         <MudItem xs="12">
+            <MudTextField Variant="Variant.Filled"
+                          Disabled="_running"
+                          Label="Permutations"
+                          Immediate="true"
+                          T="int"
+                          InputType="InputType.Number"
+                          @bind-Value="@_permutations"/>
+        </MudItem>
+
+        <MudItem xs="6">
             <MudButton Variant="Variant.Filled"
                        Disabled="_running"
                        Color="Color.Success"
@@ -29,15 +50,18 @@
                        OnClick="@Run">
                 Run
             </MudButton>
+        </MudItem>       
+        <MudItem xs="6">
+            <MudButton Variant="Variant.Filled"
+                       Disabled="!_running"
+                       Color="Color.Error"
+                       Size="Size.Large"
+                       StartIcon="@Icons.Material.Filled.Stop"
+                       OnClick="@(()=> _stop = true)">
+                Stop
+            </MudButton>
+        </MudItem>
 
-        </MudItem>
-        <MudItem xs="12">
-            <MudText Class="mb-3"
-                     Align="Align.Center"
-                     Typo="Typo.body1">
-                @_combination
-            </MudText>
-        </MudItem>
     </MudGrid>
 </MudPaper>
 
@@ -51,6 +75,8 @@
     private Dictionary<string, DisplayBox> _boxes = new();
     private bool _running;
     private string? _combination;
+    private int _permutations = 7;
+    private bool _stop;
 
     protected override void OnInitialized()
     {
@@ -58,10 +84,8 @@
             .ToDictionary(x => x.Name, x => new DisplayBox(x, GetColor(x.IsValid)));
     }
 
-    private string Calculate()
-    {
-        return ChessPieceService.GetRandomCombination(ChessPiece, CurrentBoard, 7);
-    }
+    private string Calculate() 
+        => ChessPieceService.GetRandomCombination(ChessPiece, CurrentBoard, _permutations);
 
     private async Task Run()
     {
@@ -80,17 +104,32 @@
                 previous = value.ToString();
                 _boxes[previous].Color = Color.Warning;
                 StateHasChanged();
+                if (_stop)
+                {
+                    break;
+                }
                 await Task.Delay(1000);
             }
-            _boxes[_combination.Last().ToString()].Color = Color.Primary;
+            _stop = false;
         }
         else
         {
             Snackbar.Add("No available combinations for the given piece", Severity.Error);
         }
+        Reset();
         _running = false;
     }
 
+    private void Reset()
+    {
+        var keys = _boxes.Where(x => x.Value.Color == Color.Warning)
+            .Select(x => x.Key);
+        foreach (var key in keys)
+        {
+            _boxes[key].Color = Color.Primary;
+        }
+    }
     private static Color GetColor(bool isValid)
         => isValid ? Color.Primary : Color.Error;
+
 }
