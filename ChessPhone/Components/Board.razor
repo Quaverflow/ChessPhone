@@ -99,7 +99,7 @@
             {
                 if (previous != null)
                 {
-                    _boxes[previous].Color = Color.Primary;
+                    _boxes[previous].Color = Color.Dark;
                 }
                 previous = value.ToString();
                 _boxes[previous].Color = Color.Warning;
@@ -122,7 +122,8 @@
 
     private void Reset()
     {
-        var keys = _boxes.Where(x => x.Value.Color == Color.Warning)
+        var keys = _boxes.Where(x 
+            => x.Value.Color is Color.Warning or Color.Dark)
             .Select(x => x.Key);
         foreach (var key in keys)
         {
